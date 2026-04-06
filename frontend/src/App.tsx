@@ -6,14 +6,14 @@ const App = () => {
   const [coords, setCoords] = useState({ x1: 0, y1: 0, x2: 0, y2: 0 });
   const [trace, setTrace] = useState<{ x: number; y: number }[]>([]);
 
-  // 1. Data Ingestion
+  // 1. data Ingestion
   useEffect(() => {
     const fetchStep = async () => {
       try {
         const response = await fetch("http://127.0.0.1:8000/step");
         const data = await response.json();
         setCoords(data);
-        // Track the path of the second bob
+        // track the path of the second bob
         setTrace((prev) => [...prev, { x: data.x2, y: data.y2 }].slice(-100));
       } catch (err) {
         console.error("Feed interrupted:", err);
@@ -23,7 +23,7 @@ const App = () => {
     return () => clearInterval(interval);
   }, []);
 
-  // 2. Rendering Engine
+  // 2. rendering Engine
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -33,27 +33,33 @@ const App = () => {
     const { x1, y1, x2, y2 } = coords;
     const scale = 150;
     
-    // Returning to original variable names
     const centerX = canvas.width / 2;
     const centerY = canvas.height / 2.5;
 
-    // Draw Background
+    // draw Background
     ctx.fillStyle = PALETTE.background;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // Draw Trace (Historical Path)
+    // draw Trace (Historical Path)
     ctx.beginPath();
-    ctx.strokeStyle = "rgba(56, 189, 248, 0.3)"; 
     ctx.lineWidth = 1;
     trace.forEach((point, i) => {
       const tx = centerX + point.x * scale;
       const ty = centerY - point.y * scale;
+      const alpha = i/trace.length; // dynamic fading <3
+      ctx.strokeStyle = `rgba(114, 15, 50, ${alpha})`;
+
       if (i === 0) ctx.moveTo(tx, ty);
-      else ctx.lineTo(tx, ty);
+      else { 
+        ctx.lineTo(tx, ty);
+        ctx.stroke(); // stroke each segment to apply unique alpha
+        ctx.beginPath(); // start new path for next segment
+        ctx.moveTo(tx, ty);
+      }  
     });
     ctx.stroke();
 
-    // Draw Pendulum Rods
+    // draw pendulum rods
     ctx.beginPath();
     ctx.strokeStyle = PALETTE.pivot;
     ctx.lineWidth = 4;
@@ -63,7 +69,7 @@ const App = () => {
     ctx.lineTo(centerX + x2 * scale, centerY - y2 * scale);
     ctx.stroke();
 
-    // Draw Bobs
+    // draw bobs
     ctx.fillStyle = PALETTE.arm1;
     ctx.beginPath();
     ctx.arc(centerX + x1 * scale, centerY - y1 * scale, 10, 0, Math.PI * 2);
