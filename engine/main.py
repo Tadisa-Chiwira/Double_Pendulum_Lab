@@ -18,7 +18,7 @@ app = FastAPI()
 # allows my React app (on a different port) to talk to the Python server
 app.add_middleware(
     CORSMiddleware,
-    allow_origins = [os.getenv("FRONTEND_URL", "http://localhost:5173")],
+    allow_origins = ["*"],
     allow_methods = ["*"],
     allow_headers = ["*"],
 )
