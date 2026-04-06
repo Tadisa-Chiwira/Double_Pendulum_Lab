@@ -28,3 +28,13 @@ def get_derivatives(state,t):
 
     return np.array([d_theta1, d_theta2, d_z1, d_z2])
 
+def rk4_step(state, dt):
+    # Takes one time-step forward using the RK4 method
+    # dt is the time increment (e.g 0.01 seconds)
+    k1 = get_derivatives(state, 0)
+    k2 = get_derivatives(state + 0.5 * dt * k1, 0)
+    k3 = get_derivatives(state + 0.5 * dt * k2, 0)
+    k4 = get_derivatives(state + dt * k3, 0)
+
+    return state + (dt/6.0) * (k1 + 2*k2 + 2*k3 + k4)
+
