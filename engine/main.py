@@ -1,4 +1,3 @@
-from logging import config
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from physics_engine import rk4_step
