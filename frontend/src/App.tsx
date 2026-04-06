@@ -26,7 +26,7 @@ const App = () => {
   useEffect(() => {
     const fetchStep = async () => {
       try {
-        const response = await fetch(`${API_BASE}`);
+        const response = await fetch(`${API_BASE}/step`);
         const data = await response.json();
         setCoords(data);
         // track the path of the second bob
