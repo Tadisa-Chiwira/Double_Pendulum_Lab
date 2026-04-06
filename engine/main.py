@@ -2,6 +2,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from physics_engine import rk4_step
 import numpy as np
+import os
+import uvicorn
 
 config= {
     "G": 9.81,
@@ -16,7 +18,7 @@ app = FastAPI()
 # allows my React app (on a different port) to talk to the Python server
 app.add_middleware(
     CORSMiddleware,
-    allow_origins = ["*"],
+    allow_origins = [os.getenv("FRONTEND_URL", "http://localhost:5173")],
     allow_methods = ["*"],
     allow_headers = ["*"],
 )
@@ -65,3 +67,7 @@ def reset_sim():
     global current_state
     current_state = np.array([np.pi/2, np.pi/2, 0.0, 0.0])
     return {"status": "reset"}
+
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run(app, host="0.0.0.0", port=port)

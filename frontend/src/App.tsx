@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { PALETTE } from "./constants";
 
 const App = () => {
+  const API_BASE = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [coords, setCoords] = useState({ x1: 0, y1: 0, x2: 0, y2: 0 });
   const [trace, setTrace] = useState<{ x: number; y: number }[]>([]);
@@ -14,7 +15,7 @@ const App = () => {
   // parameter sync function
   const updateBackendParams = async (g: number, mass1: number, mass2: number) => {
     try {
-      await fetch(`http://127.0.0.1:8000/update_params?G=${g}&M1=${mass1}&M2=${mass2}`);
+      await fetch(`${API_BASE}/update_params?G=${g}&M1=${mass1}&M2=${mass2}`);
     }
     catch (err) {
       console.error("Sync failed:", err);
@@ -25,7 +26,7 @@ const App = () => {
   useEffect(() => {
     const fetchStep = async () => {
       try {
-        const response = await fetch("http://127.0.0.1:8000/step");
+        const response = await fetch(`${API_BASE}`);
         const data = await response.json();
         setCoords(data);
         // track the path of the second bob
@@ -129,7 +130,7 @@ const App = () => {
             />
           </div>
 
-          <button onClick={() => fetch("http://127.0.0.1:8000/reset")}
+          <button onClick={() => fetch(`${API_BASE}/reset`)}
             style={{ width: '100%', padding: '12px', background: PALETTE.arm2, color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}>
             Reset Simulation
           </button>
