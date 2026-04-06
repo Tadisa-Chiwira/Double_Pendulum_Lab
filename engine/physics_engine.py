@@ -1,13 +1,6 @@
 import numpy as np
 
-# constants for the simulation
-G = 9.81 # accelaration due to gravity
-L1 = 1.0 # length of first rod
-L2 = 1.0 # length of second rod
-M1 = 1.0 # mass of the first bob
-M2 = 1.0 # mass of the second bob
-
-def get_derivatives(state,t):
+def get_derivatives(state, t, G, M1, M2, L1=1.0, L2=1.0):
     # Calculates the derivatives for double pendulum using equations derived from the Lagrangrian
     theta1,theta2,z1,z2 = state
 
@@ -20,21 +13,23 @@ def get_derivatives(state,t):
     d_theta1 = z1
     d_theta2 = z2
 
+    num1 = (M2 * G * np.sin(theta2) * np.cos(delta) - M2 * np.sin(delta) * (L1 * z1**2 * np.cos(delta) + L2 * z2**2) - (M1 + M2) * G * np.sin(theta1))
+    num2 = ((M1 + M2) * (L1 * z1**2 * np.sin(delta) - G * np.sin(theta2) + G * np.sin(theta1) * np.cos(delta)) + M2 * L2 * z2**2 * np.sin(delta) * np.cos(delta))
     # The acceleration for theta1 (derived from Euler-Lagrande)
-    d_z1 = (M2 * G * np.sin(theta2) * np.cos(delta) - M2 * np.sin(delta) * (L1 * z1**2 * np.cos(delta) + L2 * z2**2) - (M1 + M2) * G * np.sin(theta1)/den1)
+    d_z1 = num1/den1
 
     # the acceleration for theta2
-    d_z2 = ((M1 + M2) * (L1 * z1**2 * np.sin(delta) - G * np.sin(theta2) + G * np.sin(theta1) * np.cos(delta)) + M2 * L2 * z2**2 * np.sin(delta) * np.cos(delta))/den2
+    d_z2 = num2/den2
 
     return np.array([d_theta1, d_theta2, d_z1, d_z2])
 
-def rk4_step(state, dt):
+def rk4_step(state, dt, G, M1, M2):
     # Takes one time-step forward using the RK4 method
     # dt is the time increment (e.g 0.01 seconds)
-    k1 = get_derivatives(state, 0)
-    k2 = get_derivatives(state + 0.5 * dt * k1, 0)
-    k3 = get_derivatives(state + 0.5 * dt * k2, 0)
-    k4 = get_derivatives(state + dt * k3, 0)
+    k1 = get_derivatives(state, 0, G, M1, M2)
+    k2 = get_derivatives(state + 0.5 * dt * k1, 0, G, M1, M2)
+    k3 = get_derivatives(state + 0.5 * dt * k2, 0, G, M1, M2)
+    k4 = get_derivatives(state + dt * k3, 0, G, M1, M2)
 
     return state + (dt/6.0) * (k1 + 2*k2 + 2*k3 + k4)
 
