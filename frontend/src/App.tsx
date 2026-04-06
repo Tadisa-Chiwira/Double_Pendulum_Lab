@@ -14,7 +14,7 @@ const App = () => {
   // parameter sync function
   const updateBackendParams = async (g: number, mass1: number, mass2: number) => {
     try {
-      await fetch(`http://127.0.0.1:8000/update_params?g=${g}&m1=${mass1}&m2=${mass2}`); 
+      await fetch(`http://127.0.0.1:8000/update_params?G=${g}&M1=${mass1}&M2=${mass2}`);
     }
     catch (err) {
       console.error("Sync failed:", err);

@@ -57,6 +57,7 @@ def update_params(G: float = 9.81, M1: float = 1.0, M2: float = 1.0):
     config["G"] = G
     config["M1"] = M1
     config["M2"] = M2
+    print(f"Backend Updated: G={config['G']}, M1={config['M1']}")
     return {"status": "paramters updated", "config": config}  
 
 @app.get("/reset")
