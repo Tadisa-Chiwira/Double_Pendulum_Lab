@@ -74,11 +74,15 @@ const App = () => {
     ctx.beginPath();
     ctx.arc(centerX + x1 * scale, centerY - y1 * scale, 10, 0, Math.PI * 2);
     ctx.fill();
+    // glow effect
+    ctx.shadowBlur = 20;
+    ctx.shadowColor = PALETTE.arm2;
 
     ctx.fillStyle = PALETTE.arm2;
     ctx.beginPath();
     ctx.arc(centerX + x2 * scale, centerY - y2 * scale, 12, 0, Math.PI * 2);
     ctx.fill();
+    ctx.shadowBlur = 0; // rest shadow so it doesn't blur everything else
   }, [coords, trace]);
 
   return (
