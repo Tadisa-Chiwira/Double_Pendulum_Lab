@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { PALETTE } from "./constants";
 
 const App = () => {
@@ -10,7 +10,7 @@ const App = () => {
   // state for parameters
   const [gravity, setGravity] = useState(9.81);
   const [m1, setM1] = useState(1.0);
-  const [m2, setM2] = useState(1.0);
+  const [m2] = useState(1.0);
 
   // parameter sync function
   const updateBackendParams = async (g: number, mass1: number, mass2: number) => {
