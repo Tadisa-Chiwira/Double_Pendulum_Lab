@@ -8,7 +8,7 @@ It showcases the following skills: React frontend for the interactive UI, FastAP
 [Check it out live here!](https://double-pendulum-lab-1.onrender.com/) (it is a little laggy due to render free tier but don't mind that)
 
 ## Demo
-![Double Pendulum Demo](demo.gif)
+![Double Pendulum Demo](frontend/src/assets/demo.gif)
 
 ## Local Setup
 
