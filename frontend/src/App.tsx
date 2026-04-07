@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { PALETTE } from "./constants";
 
 const App = () => {
-  const API_BASE = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
+  const API_BASE = (import.meta.env.VITE_API_URL || "http://127.0.0.1:8000").replace(/\/$/, '');
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [coords, setCoords] = useState({ x1: 0, y1: 0, x2: 0, y2: 0 });
   const [trace, setTrace] = useState<{ x: number; y: number }[]>([]);
