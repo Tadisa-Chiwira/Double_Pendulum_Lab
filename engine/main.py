@@ -63,7 +63,7 @@ def update_params(G: float = 9.81, M1: float = 1.0, M2: float = 1.0):
     return {"status": "paramters updated", "config": config}  
 
 @app.get("/reset")
-def reset_sim():
+def reset():
     global current_state
     current_state = np.array([np.pi/2, np.pi/2, 0.0, 0.0])
     return {"status": "reset"}
