@@ -2,11 +2,11 @@ import { useEffect, useRef, useState } from "react";
 import { PALETTE } from "./constants";
 
 const App = () => {
-  const API_BASE = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
+  const API_BASE = (import.meta.env.VITE_API_URL || "http://127.0.0.1:8000").replace(/\/$/, '');
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [coords, setCoords] = useState({ x1: 0, y1: 0, x2: 0, y2: 0 });
   const [trace, setTrace] = useState<{ x: number; y: number }[]>([]);
-  
+
   // state for parameters
   const [gravity, setGravity] = useState(9.81);
   const [m1, setM1] = useState(1.0);
@@ -49,7 +49,7 @@ const App = () => {
 
     const { x1, y1, x2, y2 } = coords;
     const scale = 150;
-    
+
     const centerX = canvas.width/2;
     const centerY = canvas.height/2.5;
 
@@ -63,7 +63,7 @@ const App = () => {
       const alpha = i / trace.length;
       ctx.strokeStyle = `rgba(114, 15, 50, ${alpha})`; 
       ctx.lineWidth = 2;
-      
+
       const prevPoint = trace[i - 1];
       if (prevPoint) {
         ctx.moveTo(centerX + prevPoint.x * scale, centerY - prevPoint.y * scale);
@@ -97,18 +97,17 @@ const App = () => {
     ctx.shadowBlur = 0; // rest shadow so it doesn't blur everything else
   }, [coords, trace]);
 
-
   return (
     <div style={{ backgroundColor: "#020617", minHeight: "100vh", display: "flex", flexDirection: "column", alignItems: "center", color: "white", padding: "20px", fontFamily: "sans-serif" }}>
       <h2 style={{ letterSpacing: "2px", color: PALETTE.pivot }}>DOUBLE PENDULUM | RK4 CHAOS</h2>
-      
+
       <div style={{ display: 'flex', gap: '30px', marginTop: '20px' }}>
         <canvas ref={canvasRef} width={800} height={600} style={{ border: `1px solid ${PALETTE.pivot}`, borderRadius: '8px' }} />
-        
+
         {/* Control Panel */}
         <div style={{ background: '#1e293b', padding: '25px', borderRadius: '12px', width: '280px', height: 'fit-content' }}>
           <h3 style={{ marginTop: 0, color: PALETTE.arm2 }}>Parameters</h3>
-          
+
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', marginBottom: '8px' }}>Gravity (G): {gravity}</label>
             <input type="range" min="0" max="30" step="0.1" value={gravity} style={{ width: '100%', accentColor: PALETTE.arm2 }}
