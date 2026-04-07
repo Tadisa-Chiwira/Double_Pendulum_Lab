@@ -23,8 +23,9 @@ app.add_middleware(
     allow_headers = ["*"],
 )
 
-# global system state
-current_state = np.array([np.pi/2, np.pi/2, 0.0, 0.0])
+@app.get("/")
+def root():
+    return {"message": "Double Pendulum API"}
 
 @app.get("/step")
 def get_step(dt: float = 0.01):
