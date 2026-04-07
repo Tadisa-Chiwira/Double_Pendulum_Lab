@@ -5,7 +5,7 @@ This project is my take on the classic double pendulum problem—using Runge-Kut
 It showcases the following skills: React frontend for the interactive UI, FastAPI backend handling the heavy physics computations, and real-time rendering with Canvas. Sliders let you tweak gravity, masses, and watch the simulation respond instantly. It's a fun way to demonstrate numerical stability and deployment chops for quant internships.
 
 ## Live Demo
-[Check it out live here!](https://double-pendulum-lab-1.onrender.com/)
+[Check it out live here!](https://double-pendulum-lab-1.onrender.com/) (it is a little laggy due to render free tier but don't mind that)
 
 ## Local Setup
 
