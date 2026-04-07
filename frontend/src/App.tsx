@@ -4,8 +4,8 @@ import { PALETTE } from "./constants";
 const App = () => {
   const API_BASE = (import.meta.env.VITE_API_URL || "http://127.0.0.1:8000").replace(/\/$/, '');
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [coords, setCoords] = useState({ x1: 0, y1: 0, x2: 0, y2: 0 });
-  const [trace, setTrace] = useState<{ x: number; y: number }[]>([]);
+  const coordsRef = useRef({ x1: 0, y1: 0, x2: 0, y2: 0 });
+  const traceRef = useRef<{ x: number; y: number }[]>([]);
   
   // state for parameters
   const [gravity, setGravity] = useState(9.81);
@@ -22,80 +22,90 @@ const App = () => {
     }
   }
 
-  // 1. data Ingestion
+  // 1. data ingestion with reduced polling frequency
   useEffect(() => {
+    let mounted = true;
+
     const fetchStep = async () => {
       try {
         const response = await fetch(`${API_BASE}/step`);
         const data = await response.json();
-        setCoords(data);
-        // track the path of the second bob
-        setTrace((prev) => [...prev, { x: data.x2, y: data.y2 }].slice(-100));
+        if (!mounted || !data) return;
+
+        coordsRef.current = data;
+        traceRef.current = [...traceRef.current, { x: data.x2, y: data.y2 }].slice(-100);
       } 
       catch (err) {
         console.error("Feed interrupted:", err);
       }
     };
-    const interval = setInterval(fetchStep, 16);
-    return () => clearInterval(interval);
-  }, []);
 
-  // 2. rendering Engine
+    fetchStep();
+    const interval = window.setInterval(fetchStep, 33);
+    return () => {
+      mounted = false;
+      window.clearInterval(interval);
+    };
+  }, [API_BASE]);
+
+  // 2. optimized rendering loop using requestAnimationFrame
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    const { x1, y1, x2, y2 } = coords;
-    const scale = 150;
-    
-    const centerX = canvas.width/2;
-    const centerY = canvas.height/2.5;
+    const render = () => {
+      const { x1, y1, x2, y2 } = coordsRef.current;
+      const scale = 150;
+      const centerX = canvas.width / 2;
+      const centerY = canvas.height / 2.5;
 
-    // draw Background
-    ctx.fillStyle = PALETTE.background;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = PALETTE.background;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // draw Trace (Historical Path)
-    trace.forEach((point, i) => {
-      ctx.beginPath();
-      const alpha = i / trace.length;
-      ctx.strokeStyle = `rgba(114, 15, 50, ${alpha})`; 
-      ctx.lineWidth = 2;
-      
-      const prevPoint = trace[i - 1];
-      if (prevPoint) {
+      traceRef.current.forEach((point, i) => {
+        const prevPoint = traceRef.current[i - 1];
+        if (!prevPoint) return;
+
+        ctx.beginPath();
+        const alpha = i / traceRef.current.length;
+        ctx.strokeStyle = `rgba(114, 15, 50, ${alpha})`;
+        ctx.lineWidth = 2;
         ctx.moveTo(centerX + prevPoint.x * scale, centerY - prevPoint.y * scale);
         ctx.lineTo(centerX + point.x * scale, centerY - point.y * scale);
         ctx.stroke();
-      }
-    });
-    // draw pendulum rods
-    ctx.beginPath();
-    ctx.strokeStyle = PALETTE.pivot;
-    ctx.lineWidth = 4;
-    ctx.lineJoin = "round";
-    ctx.moveTo(centerX, centerY);
-    ctx.lineTo(centerX + x1 * scale, centerY - y1 * scale);
-    ctx.lineTo(centerX + x2 * scale, centerY - y2 * scale);
-    ctx.stroke();
+      });
 
-    // draw bobs
-    ctx.fillStyle = PALETTE.arm1;
-    ctx.beginPath();
-    ctx.arc(centerX + x1 * scale, centerY - y1 * scale, 10, 0, Math.PI * 2);
-    ctx.fill();
-    // glow effect
-    ctx.shadowBlur = 20;
-    ctx.shadowColor = PALETTE.arm2;
+      ctx.beginPath();
+      ctx.strokeStyle = PALETTE.pivot;
+      ctx.lineWidth = 4;
+      ctx.lineJoin = "round";
+      ctx.moveTo(centerX, centerY);
+      ctx.lineTo(centerX + x1 * scale, centerY - y1 * scale);
+      ctx.lineTo(centerX + x2 * scale, centerY - y2 * scale);
+      ctx.stroke();
 
-    ctx.fillStyle = PALETTE.arm2;
-    ctx.beginPath();
-    ctx.arc(centerX + x2 * scale, centerY - y2 * scale, 12, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.shadowBlur = 0; // rest shadow so it doesn't blur everything else
-  }, [coords, trace]);
+      ctx.fillStyle = PALETTE.arm1;
+      ctx.beginPath();
+      ctx.arc(centerX + x1 * scale, centerY - y1 * scale, 10, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.shadowBlur = 20;
+      ctx.shadowColor = PALETTE.arm2;
+      ctx.fillStyle = PALETTE.arm2;
+      ctx.beginPath();
+      ctx.arc(centerX + x2 * scale, centerY - y2 * scale, 12, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.shadowBlur = 0;
+
+      requestAnimationFrame(render);
+    };
+
+    const animationId = requestAnimationFrame(render);
+    return () => cancelAnimationFrame(animationId);
+  }, []);
+
 
   return (
     <div style={{ backgroundColor: "#020617", minHeight: "100vh", display: "flex", flexDirection: "column", alignItems: "center", color: "white", padding: "20px", fontFamily: "sans-serif" }}>
